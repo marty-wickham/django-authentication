@@ -1,8 +1,9 @@
 # Reverse allows us to pass the name of a URLs instead of a name of a view
 from django.shortcuts import render, redirect, reverse
 from django.contrib import auth, messages
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
-from accounts.forms import UserLoginForm
+from accounts.forms import UserLoginForm, UserRegistrationform
 
 # Create your views here.
 def index(request):
@@ -47,4 +48,41 @@ def login(request):
 
 
 def registration(request):
-    return render(request, "register.html")
+    if request.user.is_authenticated:
+        return redirect(reverse('index'))
+
+    if request.method == 'POST':
+        registration_form = UserRegistrationform(request.POST)
+    
+        if registration_form.is_valid():
+            # As we already specified the model inside of our meta class on
+            # our registration form we don't need to specify model again here 
+            registration_form.save()
+
+            user = auth.authenticate(username=request.POST['username'],
+                                     password=request.POST['password1'])
+            
+            if user:
+                auth.login(user=user, request=request)
+                messages.success(request, "You have successfully registered")
+                return redirect(reverse('index'))
+            else:
+                messages.error(request, "Unable to register your account at this time")
+    else:
+        registration_form = UserRegistrationform()
+
+    return render(request, "register.html",
+                  {'registration_form': registration_form})
+
+def user_profile(request):
+    user = User.objects.get(email=request.user.email)
+    return render(request, "profile.html", {'profile': user})
+"""
+Notice the user, there's user there and profile that's because we don't
+actually really need to grab a user profile from the database in this example
+because all of the user information is stored in the request object however if
+we were to extend this user profile and create an edit profile page where a user
+could edit their email address or something and then by using a model by default 
+would give us much more control but for now we can use the combination of both the
+user and profile objects. The user is the standard user that are stored in the request
+"""
