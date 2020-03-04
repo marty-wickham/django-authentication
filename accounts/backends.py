@@ -8,6 +8,7 @@ class EmailAuth:
         """Get an instance of a 'User' based off the email and verify the password"""
 
         try:
+            # The reason this is called username here is because that's what the name of the the form element
             user = User.objects.get(email=username)
 
             if user.check_password(password):

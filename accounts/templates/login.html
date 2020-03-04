@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load bootstrap_tags %}
+
 {% block page_title %} Login page {% endblock %}
 {% block page_heading %} User Login {% endblock %}
 
@@ -7,8 +9,9 @@
 <form action="" method="POST">
     <!-- this is a reference to a function so we use the percent signs instead of the curly braces -->
     {% csrf_token %}
-    {{ login_form }}
-    <button type="submit">Login</button>
+    <!-- This will take the form and pass it into the bootstrap function  -->
+    {{ login_form | as_bootstrap }}
+    <button type="submit" class="btn btn-light">Login</button>
 </form>
 <p><a href="{% url 'password_reset' %}">Forgot password</a></p>
 {% endblock %}
